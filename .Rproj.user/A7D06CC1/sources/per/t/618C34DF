@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1515279843052.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2071792630",
+    "id" : "618C34DF",
+    "lastKnownWriteTime" : 1515323488,
+    "last_content_update" : 1515323488123,
+    "path" : "~/projects/unempCorrel/setup.R",
+    "project_path" : "setup.R",
+    "properties" : {
+        "cursorPosition" : "54,0",
+        "scrollLine" : "32",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

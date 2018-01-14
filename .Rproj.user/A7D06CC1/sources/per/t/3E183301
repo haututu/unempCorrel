@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1515281141954.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "3E183301",
+    "lastKnownWriteTime" : 3419473789575321445,
+    "last_content_update" : 1515281141954,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "58B6E532",
+        "caption" : "cpi",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=cpi&cache_key=58B6E532",
+        "displayedObservations" : "409",
+        "environment" : "",
+        "object" : "cpi",
+        "preview" : "0",
+        "totalObservations" : "409",
+        "variables" : "6"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}
