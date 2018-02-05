@@ -17,4 +17,5 @@ correlPlot <- autoplot(dat) +
     color="Series"
   )
 
-ggsave("images/correlPlot.svg", plot=correlPlot, device="svg", width=7, height=3)
+ggsave("images/unempPlot.svg", plot=correlPlot, device="svg", width=7, height=3)
+ggsave("../../GitHub/JBlog/blog/unempPlot.svg", plot=correlPlot, device="svg", width=7, height=3)
