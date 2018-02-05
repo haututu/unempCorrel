@@ -11,9 +11,9 @@ library(dplyr)
 library(ggplot2)
 
 #Load data, read_exel takes a spreadsheet and sheet number for the table
-cpi <- read_excel("graphdata.xlsx", 2)
+cpi <- read_excel("data/graphdata.xlsx", 2)
 #Stats NZ seasonally adjusted, we didnt adjust ourselves as in project file
-unemp <- read.csv("unempSeasAdj.csv")
+unemp <- read.csv("data/unempSeasAdj.csv")
 
 #Make column names the same
 colnames(cpi) <- c("date", "cpi")

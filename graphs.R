@@ -1,7 +1,7 @@
 source("setup.R")
 
 #Plot of unemployment and CPI relationship
-rawPlot <- autoplot(dat) +
+correlPlot <- autoplot(dat) +
   geom_smooth() +
   theme_classic() +
   theme(
@@ -11,8 +11,10 @@ rawPlot <- autoplot(dat) +
     plot.title = element_text(hjust = 0.5)
   ) +
   labs(
-    title="Clean time series data",
+    title="Relationship between unemployment and inflation",
     y="Percentage (%)",
     x="Time",
     color="Series"
   )
+
+ggsave("images/correlPlot.svg", plot=correlPlot, device="svg", width=7, height=3)

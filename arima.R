@@ -1,7 +1,7 @@
 source("setup.R")
 
-model1 <- auto.arima(dat[,2])
-model2 <- auto.arima(dat[,2], xreg = dat[,1])
+model1 <- auto.arima(dat[,2], seasonal = FALSE)
+model2 <- auto.arima(dat[,2], xreg = dat[,1], seasonal = FALSE)
 
 model1 <- auto.arima(head(dat[,2], 124))
 model2 <- auto.arima(head(dat[,2], 124), xreg = head(dat[,1], 124))
