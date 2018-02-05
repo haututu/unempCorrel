@@ -1,0 +1,139 @@
+---
+title: "The Phillips curve in NZ"
+author: "Taylor Winter"
+date: "31 January 2018"
+output: 
+  html_document
+---
+```{r setup, include=FALSE}
+library(knitr)
+library(kableExtra)
+library(forecast)
+library(seasonal)
+library(readxl)
+library(dplyr)
+library(ggplot2)
+
+
+opts_chunk$set(echo = TRUE)
+
+```
+
+## Overview
+
+The [Phillips curve](https://en.wikipedia.org/wiki/Phillips_curve) is basically the negative correlation between inflation (Capital Price Index; CPI) and unemployment. One basic explanation of this is that when unemployment drops the resulting competition for labour drives wage increases leading to increased CPI. After seeing an article on [The Economist](https://www.economist.com/blogs/graphicdetail/2017/11/daily-chart) indicating that this correlation may not hold in present United States, I was curious if the Phillips Curve could still be observed in New Zealand.
+
+This analysis uses time series data, I use the `forecast` package to seasonally adjust unemployment and then use a regression model developed for time series data to test the inverse proportional relationship between unemployment and the CPI.
+
+## Data background
+
+The data comes as an excel spreadsheet from the [Reserve Bank](https://www.rbnz.govt.nz/statistics/key-graphs/key-graph-inflation) and a CSV from [Stats Nz](http://archive.stats.govt.nz/infoshare/SelectVariables.aspx?pxID=caecaca0-2e11-45bf-ba3c-6b08da2ec9ef). They are both quarterly series and can come in seasionally adjusted and unadjusted flavours. In this analysis the CPI is adjusted and unemployment is unadjusted. This is only so I can test out seasonal adjustment and see how it stacks up to the official adjusted series.
+
+## Load and clean data
+
+``` {r loadClean, include=FALSE}
+#Load data, read_exel takes a spreadsheet and sheet number for the table
+cpi <- read_excel("graphdata.xlsx", 2)
+unemp <- read.csv("unemp.csv")
+
+#Make column names the same
+colnames(cpi) <- c("date", "cpi")
+colnames(unemp) <- c("date", "unemp")
+
+#Some quarters did not have data so removing them here
+cpi <- filter(cpi[,1:2], !is.na(date) & !is.na(cpi))
+unemp <- filter(unemp, unemp != "" & date != "" & date != " ")
+
+#Need to cast variables to dates but change Q~ labels to actual dates first
+unemp$date <- gsub("Q1", "-01-02", unemp$date)
+unemp$date <- gsub("Q2", "-04-02", unemp$date)
+unemp$date <- gsub("Q3", "-07-02", unemp$date)
+unemp$date <- gsub("Q4", "-10-02", unemp$date)
+
+#Date was a string so convert to date
+cpi$date <- as.Date(as.integer(cpi$date), origin=as.Date("1900-01-01"))
+unemp$date <- as.Date(unemp$date, origin=as.Date("1900-01-01"))
+
+#Truncating CPI so it has same date range as unemployment
+cpi <- filter(cpi, date %in% unemp$date)
+
+#Casting variables, they loaded as factors so need to cast characters first
+unemp$unemp <- as.numeric(as.character(unemp$unemp))
+cpi$cpi <- as.numeric(as.character(cpi$cpi))
+
+#Merge
+dat <- inner_join(cpi, unemp, "date") %>% select(-date)
+```
+
+A little bit of cleaning was needed before merging the data and creating a time series object (cleaning code is in the github project). In the `ts()` function the frequency is the number of observations a year (quarterly) and I set a start date (optional) so graphs make more sense. Henceforth the data works like a matrix rather than a dataframe, it took me longer than it should have to realise that.
+
+```{r castTs}
+dat <- ts(dat, frequency = 4, start=c(1986, 01))
+```
+
+Now we can peak at the data and it seems like there is a fairly clear relationship between CPI and unemployment, i.e. a Phillips curve. Seasonally adjusting unemployment then doing some testing will clarify things though.
+
+```{r plotDat, echo=FALSE, message=FALSE}
+autoplot(dat) +
+  geom_smooth() +
+  theme_classic() +
+  theme(
+    plot.background = element_rect(fill = "#ecf0f1", color=NA), 
+    panel.background = element_rect(fill = "#ecf0f1"),
+    legend.background = element_rect(fill = "#ecf0f1"),
+    plot.title = element_text(hjust = 0.5)
+    ) +
+  labs(
+    title="Clean time series data",
+    y="Percentage (%)",
+    x="Time",
+    color="Series"
+    )
+```
+
+## Seasonally adjust unemployment
+
+The easiest way to seasonally adjust is using a sweet package called `seasonal`. It draws on software developed by the US Census Bureau and is an industry standard in official statistics (including at Stats NZ). I found it works right out of the box as below and you can call the adjusted series using `final()` on the `seas` object.
+
+```{r adjust, message=FALSE}
+#Gets adjusted values for unemp and adds them to the dataset using ts.union
+dat <- ts.union(dat, "unempAdj" = final(seas(dat[,"unemp"])))
+```
+
+Now we can take a look at see how the adjusted series compares, it still is a little jagged but definitely better (if zoomed it in a bit). If we compared it to the adjusted Stats NZ time series I noticed their curve was a little more smooth than ours (bonus plot here).
+
+```{r compareAdjust, echo=FALSE}
+#Plot data
+autoplot(tail(dat[,2:3], 30)) +
+  geom_line(size=1.2) +
+  theme_classic() +
+  theme(
+    plot.background = element_rect(fill = "#ecf0f1", color=NA), 
+    panel.background = element_rect(fill = "#ecf0f1"),
+    legend.background = element_rect(fill = "#ecf0f1"),
+    plot.title = element_text(hjust = 0.5)
+    ) +
+  scale_color_manual(labels=c("Raw", "Adjusted"), values=c("#F8766D", "#00BFC4")) +
+  labs(
+    title="Comparison of seasonal adjustment",
+    y="Percentage (%)",
+    x="Time",
+    color="Series"
+    )
+```
+
+## Is there evidence of the Phillip's curve?
+
+```{r plotCorrel}
+ggplot(as.data.frame(dat[20:120,]), aes(x=unempAdj, y=dat.cpi)) +
+  geom_point() +
+  geom_smooth(method='lm', formula=y~x)
+
+autoplot(dat) +geom_smooth()
+```
+
+## Bonus: Forecasting unemployment
+
+### Training
+
+### Predictions for upcoming release
